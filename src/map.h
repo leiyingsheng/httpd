@@ -20,8 +20,10 @@ static unsigned int hash(char* str);
 
 static struct entry* lookup(struct map* caller, char* key);
 
-int map_set(struct map* caller, char* key, void* val);
+int map_set(struct map* caller, char* key, char* val);
 
-void* map_get(struct map* caller, char* key);
+char* map_get(struct map* caller, char* key);
 
 int map_clean(struct map* caller);
+
+int print_map(struct map* caller);

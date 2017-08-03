@@ -1,3 +1,5 @@
 #pragma once
 
-int mLog();
+char* endOfHeader(const char* srcStr);
+
+char* trim(char* str);
