@@ -1,7 +1,8 @@
-#include "map.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "map.h"
 
 static unsigned int hash(char* str) {
   unsigned int val;
@@ -24,10 +25,10 @@ struct map* newMap() {
   return p;
 }
 
-static struct entry* lookup(struct map* caller, char* key) {
+static struct entry* lookup(struct map* m, char* key) {
   struct entry* p;
 
-  for (p = caller->entryTab[hash(key)]; p != NULL; p = p->next) {
+  for (p = m->entryTab[hash(key)]; p != NULL; p = p->next) {
     if (strcmp(key, p->key) == 0) {
       return p;
     }
@@ -36,11 +37,11 @@ static struct entry* lookup(struct map* caller, char* key) {
   return NULL;
 };
 
-int map_set(struct map* caller, char* key, char* val) {
+int setMap(struct map* m, char* key, char* val) {
   struct entry* p;
   unsigned int hashval;
 
-  if (NULL == (p = lookup(caller, key))) {
+  if (NULL == (p = lookup(m, key))) {
     p = (struct entry*)malloc(sizeof(struct entry));
     if (NULL == p) {
       return -1;
@@ -48,8 +49,8 @@ int map_set(struct map* caller, char* key, char* val) {
 
     p->key = strdup(key);
     hashval = hash(key);
-    p->next = caller->entryTab[hashval];
-    caller->entryTab[hashval] = p;
+    p->next = m->entryTab[hashval];
+    m->entryTab[hashval] = p;
 
   } else {
     free(p->val);
@@ -60,8 +61,8 @@ int map_set(struct map* caller, char* key, char* val) {
   return 0;
 };
 
-char* map_get(struct map* caller, char* key) {
-  struct entry* p = lookup(caller, key);
+char* getMap(struct map* m, char* key) {
+  struct entry* p = lookup(m, key);
 
   if (NULL == p) {
     return NULL;
@@ -70,12 +71,12 @@ char* map_get(struct map* caller, char* key) {
   return p->val;
 }
 
-int map_clean(struct map* caller) {
+int cleanMap(struct map* m) {
   int i;
   struct entry *p, *tmp;
 
   for (i = 0; i < HASH_SIZE; ++i) {
-    p = caller->entryTab[i];
+    p = m->entryTab[i];
     while (p != NULL) {  // clean up the list
       tmp = p;
       p = p->next;
@@ -83,28 +84,28 @@ int map_clean(struct map* caller) {
       free(tmp->val);
       free(tmp);
     }
-    caller->entryTab[i] = NULL;
+    m->entryTab[i] = NULL;
   }
 
-  free(caller->entryTab);
-  // caller->entryTab = NULL;
+  free(m->entryTab);
+  // m->entryTab = NULL;
 
   return 0;
 }
 
-int print_map(struct map* caller) {
-  if (NULL == caller) {
+int printMap(struct map* m) {
+  if (NULL == m) {
     return -1;
   }
+
   int i;
   struct entry* p;
-  printf("header:\n");
+
   for (i = 0; i < HASH_SIZE; ++i) {
-    for (p = caller->entryTab[i]; p != NULL; p = p->next) {
+    for (p = m->entryTab[i]; p != NULL; p = p->next) {
       printf("%s:%s\n", p->key, (char*)(p->val));
     }
   }
-  printf("end of header\n");
 
   return 0;
 }

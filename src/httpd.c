@@ -15,35 +15,57 @@
 #include <unistd.h>
 
 #include "request.h"
-
-int set_up() {
-  int serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-  struct sockaddr_in serv_addr;
-  memset(&serv_addr, 0, sizeof(serv_addr));
-  serv_addr.sin_family = AF_INET;
-  serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  serv_addr.sin_port = htons(1234);
-
-  bind(serv_sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr));
-
-  listen(serv_sock, 20);
-  return serv_sock;
-}
+#include "httpd.h"
 
 int main(void) {
-  int serv_sock = set_up();
+  int listenFd = setupListener();
 
-  struct sockaddr_in clnt_addr;
-  socklen_t clnt_addr_size = sizeof(clnt_addr);
+  struct sockaddr_in clientAddr;
+  socklen_t clientAddrLen = sizeof(clientAddr);
   while (1) {
-    int clnt_sock =
-        accept(serv_sock, (struct sockaddr*)&clnt_addr, &clnt_addr_size);
+    int clientFd =
+        accept(listenFd, (struct sockaddr*)&clientAddr, &clientAddrLen);
 
-    printf("hi %d\n", clnt_sock);
-    handle_request(clnt_sock);
+    printf("hi %d\n", clientFd);
+    handleRequest(clientFd);
   }
-  close(serv_sock);
+  close(listenFd);
+
+  return 0;
+}
+
+int setupListener() {
+  int listenFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+  struct sockaddr_in listenAddr;
+  memset(&listenAddr, 0, sizeof(listenAddr));
+  listenAddr.sin_family = AF_INET;
+  listenAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+  listenAddr.sin_port = htons(1234);
+
+  bind(listenFd, (struct sockaddr*)&listenAddr, sizeof(listenAddr));
+
+  listen(listenFd, 20);
+  return listenFd;
+}
+
+int handleRequest(int clientFd) {
+  struct context* ctx = newContext(clientFd);
+
+  readRequest(ctx);
+  parseHeader(ctx);
+
+  printMap(ctx->header);
+
+  char str[] =
+      "HTTP / 1.0 200 OK\r\n"
+      "Content - type : text / html\r\n"
+      "\r\n"
+      "<p>hello world</p>";
+  write(ctx->clientFd, str, sizeof(str));
+
+  close(ctx->clientFd);
+  cleanContext(ctx);
 
   return 0;
 }

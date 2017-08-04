@@ -1,7 +1,6 @@
 #pragma once
-#define HASH_SIZE 50
 
-// static struct entry* entryTab[HASH_SIZE];
+#define HASH_SIZE 50
 
 /* list entry */
 struct entry {
@@ -18,12 +17,12 @@ struct map* newMap();
 
 static unsigned int hash(char* str);
 
-static struct entry* lookup(struct map* caller, char* key);
+static struct entry* lookup(struct map* m, char* key);
 
-int map_set(struct map* caller, char* key, char* val);
+int setMap(struct map* m, char* key, char* val);
 
-char* map_get(struct map* caller, char* key);
+char* getMap(struct map* m, char* key);
 
-int map_clean(struct map* caller);
+int cleanMap(struct map* m);
 
-int print_map(struct map* caller);
+int printMap(struct map* m);

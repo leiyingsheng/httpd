@@ -10,28 +10,7 @@
 
 #define BUF_SIZE 1024
 
-int handle_request(int clientFd) {
-  struct context* ctx = newContext(clientFd);
-
-  read_all(ctx);
-  parse_header(ctx);
-
-  print_map(ctx->header);
-
-  char str[] =
-      "HTTP / 1.0 200 OK\r\n"
-      "Content - type : text / html\r\n"
-      "\r\n"
-      "<p>hello world</p>";
-  write(ctx->clientFd, str, sizeof(str));
-
-  close(ctx->clientFd);
-  context_cleanup(ctx);
-
-  return 0;
-}
-
-int read_all(struct context* ctx) {
+int readRequest(struct context* ctx) {
   char* buf = (char*)malloc(BUF_SIZE);
   int n;
   char* eoh = NULL;
@@ -48,31 +27,31 @@ int read_all(struct context* ctx) {
     if (!eoh) {  // header
       eoh = endOfHeader(buf);
 
-      appendRawData(ctx->rawHeader, buf, eoh ? eoh - buf : n);
+      appendGrowData(ctx->rawHeader, buf, eoh ? eoh - buf : n);
 
       if (eoh) {  // rest of body
-        appendRawData(ctx->rawBody, eoh, n - (eoh - buf));
+        appendGrowData(ctx->rawBody, eoh + 1, n - (eoh - buf - 1));
       }
     } else {
-      appendRawData(ctx->rawBody, buf, n);
+      appendGrowData(ctx->rawBody, buf, n);
     }
 
   } while (n == BUF_SIZE);
 
-  printf("parse header:\n%s\n", ctx->rawHeader->data);
-  printf("parse body:\n%s\n", ctx->rawBody->data);
+  printf("header:\n%s\n", ctx->rawHeader->data);
+  printf("body:\n%s\n", ctx->rawBody->data);
 
   free(buf);
   return 0;
 }
 
 /* read header field into context map */
-int parse_header(struct context* ctx) {
+int parseHeader(struct context* ctx) {
   char *buf = strdup(ctx->rawHeader->data), *tmpp = buf;
   char *line, *key;
 
   // TODO:err handle
-  line = strsep(&tmpp, "\n");  // request header
+  line = strsep(&tmpp, "\n");  // status line
 
   key = strsep(&line, " ");  // http method
   ctx->method = strdup(key);
@@ -88,12 +67,15 @@ int parse_header(struct context* ctx) {
   for (line = strsep(&tmpp, "\n"); line != NULL;
        line = strsep(&tmpp, "\n")) {  // line
 
-    if (strlen(line) == 0) {
+    if (strlen(line) == 0) {  // null line
       continue;
     }
 
     key = strsep(&line, ":");  // cut off key
-    map_set(ctx->header, key, trim(line));
+    if (line == NULL) {        // null val
+      continue;
+    }
+    setMap(ctx->header, key, trim(line));
   }
 
   free(buf);

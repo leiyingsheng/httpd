@@ -1,10 +1,9 @@
 #pragma once
+
 #include "context.h"
 
 extern int errno;
 
-int handle_request(int clientFd);
+int readRequest(struct context* ctx);
 
-int read_all(struct context* ctx);
-
-int parse_header(struct context* ctx);
+int parseHeader(struct context* ctx);

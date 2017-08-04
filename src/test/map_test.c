@@ -11,32 +11,32 @@ void basic_opera() {
   struct map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
-  map_set(mMap, "test", "testval");
-  CU_ASSERT_STRING_EQUAL((char*)map_get(mMap, "test"), "testval");
+  setMap(mMap, "test", "testval");
+  CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test"), "testval");
 }
 
 void reset_map() {
   struct map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
-  map_set(mMap, "test1", "testval1");
-  // printf("%s\n", (char*)map_get(mMap, "test1"));
-  CU_ASSERT_STRING_EQUAL((char*)map_get(mMap, "test1"), "testval1");
+  setMap(mMap, "test1", "testval1");
+  // printf("%s\n", (char*)getMap(mMap, "test1"));
+  CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test1"), "testval1");
 
-  map_set(mMap, "test1", "testval2");
-  // printf("%s\n", (char*)map_get(mMap, "test1"));
-  CU_ASSERT_STRING_EQUAL((char*)map_get(mMap, "test1"), "testval2");
+  setMap(mMap, "test1", "testval2");
+  // printf("%s\n", (char*)getMap(mMap, "test1"));
+  CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test1"), "testval2");
 }
 
-void clean_map() {
+void cleanMap() {
   struct map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
-  map_set(mMap, "test", "testval");
-  CU_ASSERT_STRING_EQUAL((char*)map_get(mMap, "test"), "testval");
+  setMap(mMap, "test", "testval");
+  CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test"), "testval");
 
-  map_clean(mMap);
-  CU_ASSERT(NULL == map_get(mMap, "test"));
+  cleanMap(mMap);
+  CU_ASSERT(NULL == getMap(mMap, "test"));
 }
 // int init_suite() {
 //   return 0;
@@ -63,7 +63,7 @@ int main(void) {
   /* add the tests to the suite */
   if (NULL == CU_add_test(pSuite, "basic operation", basic_opera) ||
       NULL == CU_add_test(pSuite, "reset map", reset_map) ||
-      NULL == CU_add_test(pSuite, "clean operation", clean_map)) {
+      NULL == CU_add_test(pSuite, "clean operation", cleanMap)) {
     CU_cleanup_registry();
     return CU_get_error();
   }
