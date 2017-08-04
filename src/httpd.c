@@ -15,6 +15,7 @@
 #include <unistd.h>
 
 #include "request.h"
+#include "respone.h"
 #include "httpd.h"
 
 int main(void) {
@@ -51,18 +52,16 @@ int setupListener() {
 
 int handleRequest(int clientFd) {
   struct context* ctx = newContext(clientFd);
+  struct respone* resp = newRespone(200);
 
   readRequest(ctx);
   parseHeader(ctx);
 
   printMap(ctx->header);
 
-  char str[] =
-      "HTTP / 1.0 200 OK\r\n"
-      "Content - type : text / html\r\n"
-      "\r\n"
-      "<p>hello world</p>";
-  write(ctx->clientFd, str, sizeof(str));
+  setMap(resp->header, "Content-type", "text/html");
+  appendGrowData(resp->body, "<p>hello world</p>", sizeof "<p>hello world</p>");
+  encodeRespone(ctx->clientFd, resp);
 
   close(ctx->clientFd);
   cleanContext(ctx);

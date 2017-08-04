@@ -28,7 +28,7 @@ void reset_map() {
   CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test1"), "testval2");
 }
 
-void cleanMap() {
+void test_cleanMap() {
   struct map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
@@ -63,7 +63,7 @@ int main(void) {
   /* add the tests to the suite */
   if (NULL == CU_add_test(pSuite, "basic operation", basic_opera) ||
       NULL == CU_add_test(pSuite, "reset map", reset_map) ||
-      NULL == CU_add_test(pSuite, "clean operation", cleanMap)) {
+      NULL == CU_add_test(pSuite, "clean operation", test_cleanMap)) {
     CU_cleanup_registry();
     return CU_get_error();
   }

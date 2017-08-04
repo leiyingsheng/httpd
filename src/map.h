@@ -1,11 +1,11 @@
 #pragma once
 
-#define HASH_SIZE 50
+#include "utils.h"
 
 /* list entry */
 struct entry {
   char* key;
-  void* val;
+  char* val;
   struct entry* next;
 };
 
@@ -15,10 +15,6 @@ struct map {
 
 struct map* newMap();
 
-static unsigned int hash(char* str);
-
-static struct entry* lookup(struct map* m, char* key);
-
 int setMap(struct map* m, char* key, char* val);
 
 char* getMap(struct map* m, char* key);
@@ -26,3 +22,5 @@ char* getMap(struct map* m, char* key);
 int cleanMap(struct map* m);
 
 int printMap(struct map* m);
+
+int mapToHeader(struct growData* gd, struct map* m);

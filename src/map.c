@@ -4,7 +4,10 @@
 
 #include "map.h"
 
-static unsigned int hash(char* str) {
+#define HASH_SIZE 50
+#define BUF_SIZE 128
+
+static inline unsigned int hash(char* str) {
   unsigned int val;
 
   for (val = 0; *str != '\0'; ++str) {
@@ -16,7 +19,7 @@ static unsigned int hash(char* str) {
 
 struct map* newMap() {
   struct map* p = (struct map*)malloc(sizeof(struct map));
-  p->entryTab = (struct entry**)malloc(sizeof(struct entry) * HASH_SIZE);
+  p->entryTab = (struct entry**)calloc(HASH_SIZE, sizeof(struct entry));
 
   if (NULL == p->entryTab) {
     return NULL;
@@ -103,9 +106,37 @@ int printMap(struct map* m) {
 
   for (i = 0; i < HASH_SIZE; ++i) {
     for (p = m->entryTab[i]; p != NULL; p = p->next) {
-      printf("%s:%s\n", p->key, (char*)(p->val));
+      printf("%s:%s\n", p->key, p->val);
     }
   }
 
+  return 0;
+}
+
+int mapToHeader(struct growData* gd, struct map* m) {
+  if (NULL == m) {
+    return -1;
+  }
+
+  int i, lineLen;
+  struct entry* p;
+  char* buf = (char*)malloc(BUF_SIZE);
+
+  for (i = 0; i < HASH_SIZE; ++i) {
+    for (p = m->entryTab[i]; p != NULL; p = p->next) {
+      lineLen = strlen(p->key) + sizeof ": \r\n" + strlen(p->val);
+      if (lineLen > BUF_SIZE) {
+        printf("line too long\n");
+        free(buf);
+        return -1;
+      }
+      sprintf(buf, "%s: %s\r\n", p->key, p->val);
+      appendGrowData(gd, buf, lineLen);
+    }
+  }
+
+  appendGrowData(gd, "\r\n", sizeof "\r\n");
+
+  free(buf);
   return 0;
 }

@@ -5,11 +5,15 @@
 
 struct respone {
   char* protocol;
-  unsigned char statusCode;
+  int statusCode;
   char* message;
   struct map* header;
 
   struct growData* body;
 };
 
-char* encodeRespone(struct respone* resp);
+struct respone* newRespone(int statusCode);
+
+int encodeRespone(int clientFd, struct respone* resp);
+
+int cleanRespone(struct respone* resp);

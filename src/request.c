@@ -15,6 +15,7 @@ int readRequest(struct context* ctx) {
   int n;
   char* eoh = NULL;
 
+  // printf("=======start=======\n");
   do {
     n = read(ctx->clientFd, buf, BUF_SIZE);
     if (n < 0) {
@@ -37,6 +38,7 @@ int readRequest(struct context* ctx) {
     }
 
   } while (n == BUF_SIZE);
+  // printf("=======end=======\n");
 
   printf("header:\n%s\n", ctx->rawHeader->data);
   printf("body:\n%s\n", ctx->rawBody->data);

@@ -13,9 +13,9 @@ struct growData {
   char* data;
 };
 
-struct growData* newgrowData(size_t size);
+struct growData* newGrowData(size_t size);
 
-int appendGrowData(struct growData* rd, const char* data, size_t n);
+int appendGrowData(struct growData* gd, const char* data, size_t n);
 
-int cleanGrowData(struct growData* rd);
+int cleanGrowData(struct growData* gd);
 ////////////////////////

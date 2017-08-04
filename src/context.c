@@ -10,8 +10,8 @@ struct context* newContext(int clientFd) {
   ctx->clientFd = clientFd;
   ctx->header = newMap();
 
-  ctx->rawHeader = newgrowData(RAW_DATA_INIT_SIZE);
-  ctx->rawBody = newgrowData(RAW_DATA_INIT_SIZE);
+  ctx->rawHeader = newGrowData(RAW_DATA_INIT_SIZE);
+  ctx->rawBody = newGrowData(RAW_DATA_INIT_SIZE);
 
   return ctx;
 }

@@ -47,33 +47,34 @@ char* trim(char* str) {
 /////////////////////////
 // growData with malloc()
 
-struct growData* newgrowData(size_t size) {
-  struct growData* rd = (struct growData*)malloc(sizeof(struct growData));
+struct growData* newGrowData(size_t size) {
+  struct growData* gd = (struct growData*)malloc(sizeof(struct growData));
 
-  rd->data = (char*)malloc(size);
-  rd->size = size;
+  gd->data = (char*)malloc(size);
+  memset(gd->data, 0, size);
+  gd->size = size;
 
-  return rd;
+  return gd;
 }
 
-int appendGrowData(struct growData* rd, const char* data, size_t n) {
+int appendGrowData(struct growData* gd, const char* data, size_t n) {
   char* newP;
 
-  if (rd->size - strlen(rd->data) <= n) {  // out of space
-    newP = realloc(rd->data, rd->size + n);
+  if (gd->size - strlen(gd->data) <= n) {  // out of space
+    newP = realloc(gd->data, gd->size + n);
     if (!newP) {
       return -1;
     }
-    rd->data = newP;
-    rd->size += n;
+    gd->data = newP;
+    gd->size += n;
   }
-  rd->data = strncat(rd->data, data, n);
+  gd->data = strncat(gd->data, data, n);
   return 0;
 }
 
-int cleanGrowData(struct growData* rd) {
-  free(rd->data);
-  free(rd);
+int cleanGrowData(struct growData* gd) {
+  free(gd->data);
+  free(gd);
   return 0;
 }
 
