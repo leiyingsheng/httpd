@@ -7,6 +7,7 @@
 
 struct context* newContext(int clientFd) {
   struct context* ctx = (struct context*)malloc(sizeof(struct context));
+  memset(ctx, 0, sizeof *ctx);
   ctx->clientFd = clientFd;
   ctx->header = newMap();
 
@@ -19,9 +20,14 @@ struct context* newContext(int clientFd) {
 int cleanContext(struct context* ctx) {
   cleanMap(ctx->header);
 
-  free(ctx->method);
-  free(ctx->path);
-  free(ctx->protocol);
+  if (ctx->method != NULL)
+    free(ctx->method);
+
+  if (ctx->url != NULL)
+    free(ctx->url);
+
+  if (ctx->protocol != NULL)
+    free(ctx->protocol);
 
   cleanGrowData(ctx->rawHeader);
   cleanGrowData(ctx->rawBody);

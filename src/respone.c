@@ -15,14 +15,19 @@ struct respone* newRespone(int statusCode) {
   return resp;
 }
 
+/* encode respone and send to client */
 int encodeRespone(int clientFd, struct respone* resp) {
   struct growData* buf = newGrowData(1024);
+  char statusLine[32];
 
-  appendGrowData(buf, "HTTP/1.1 200 OK\r\n", sizeof "HTTP/1.1 200 OK\r\n");
-  mapToHeader(buf, resp->header);
+  sprintf(statusLine, "%s %d %s\r\n", resp->protocol, resp->statusCode,
+          resp->message);  // status-line
+  appendGrowData(buf, statusLine, strlen(statusLine));
+
+  mapToHeader(buf, resp->header);  // append respone header
+
   dprintf(clientFd, "%s%s", buf->data, resp->body->data);
-  //   dprintf(clientFd, "%s %s %s\r\n%s%s", resp->protocol, resp->statusCode,
-  //           resp->message, buf, resp->body->data);
+
   cleanGrowData(buf);
   return 0;
 }

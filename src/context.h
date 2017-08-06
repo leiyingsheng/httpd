@@ -6,7 +6,7 @@
 struct context {
   int clientFd;
   char* method;
-  char* path;
+  char* url;
   char* protocol;
   struct map* header;
 

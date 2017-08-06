@@ -18,6 +18,10 @@
 #include "respone.h"
 #include "httpd.h"
 
+#define LISTEN_ADDR "127.0.0.1"
+#define LISTEN_PORT 1234
+#define STATIC_FILE_DIR "./static"
+
 int main(void) {
   int listenFd = setupListener();
 
@@ -41,8 +45,8 @@ int setupListener() {
   struct sockaddr_in listenAddr;
   memset(&listenAddr, 0, sizeof(listenAddr));
   listenAddr.sin_family = AF_INET;
-  listenAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
-  listenAddr.sin_port = htons(1234);
+  listenAddr.sin_addr.s_addr = inet_addr(LISTEN_ADDR);
+  listenAddr.sin_port = htons(LISTEN_PORT);
 
   bind(listenFd, (struct sockaddr*)&listenAddr, sizeof(listenAddr));
 
@@ -52,15 +56,29 @@ int setupListener() {
 
 int handleRequest(int clientFd) {
   struct context* ctx = newContext(clientFd);
-  struct respone* resp = newRespone(200);
+
+  struct respone* resp = newRespone(STAT_OK);
+
+  char filePath[32];
 
   readRequest(ctx);
+  // printf("header:\n%s\n", ctx->rawHeader->data);
+  // printf("body:\n%s\n", ctx->rawBody->data);
+  // printf("====end====\n");
   parseHeader(ctx);
 
+  printf("request url:%s\n", ctx->url);
   printMap(ctx->header);
 
+  resp->protocol = ctx->protocol;
+  resp->message = "none";
   setMap(resp->header, "Content-type", "text/html");
-  appendGrowData(resp->body, "<p>hello world</p>", sizeof "<p>hello world</p>");
+
+  sprintf(filePath, "%s%s", STATIC_FILE_DIR, ctx->url);
+  if (readFile(filePath, resp->body) < 0) {
+    resp->statusCode = STAT_NOT_FOUND;
+  }
+
   encodeRespone(ctx->clientFd, resp);
 
   close(ctx->clientFd);

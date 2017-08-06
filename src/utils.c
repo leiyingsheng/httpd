@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <error.h>
 
 #include "utils.h"
+
+#define BUF_SIZE 512
 
 /* find out the null line */
 char* endOfHeader(const char* srcStr) {
@@ -10,7 +13,7 @@ char* endOfHeader(const char* srcStr) {
 
   prevp = curp;
   do {
-    curp = strstr(prevp, "\n");
+    curp = strstr(prevp, "\r");
 
     if (curp && curp - prevp == 1) {
       return curp;
@@ -22,7 +25,7 @@ char* endOfHeader(const char* srcStr) {
   return NULL;
 }
 
-/* trim front and back space char */
+/* trim front and back space char & '\r' '\n' */
 char* trim(char* str) {
   if (str == NULL) {
     return NULL;
@@ -30,12 +33,12 @@ char* trim(char* str) {
 
   char* ss = str;
 
-  while (*ss == ' ') {
+  while (*ss == ' ' || *ss == '\r' || *ss == '\n') {
     ++ss;
   }
 
   for (str += strlen(str) - 1; str > ss; --str) {
-    if (*str != ' ') {
+    if (*str != ' ' && *str != '\r' && *str != '\n') {
       *(str + 1) = '\0';
       break;
     }
@@ -44,14 +47,38 @@ char* trim(char* str) {
   return ss;
 }
 
+int readFile(const char* filePath, struct growData* gd) {
+  printf("read file: %s\n", filePath);
+  FILE* f = fopen(filePath, "r");
+  if (!f) {
+    perror("read failed");
+    return -1;
+  }
+
+  char* buf = (char*)malloc(BUF_SIZE);
+
+  while (!feof(f)) {
+    if (fread(buf, BUF_SIZE, 1, f) >= 0) {
+      // printf("read content:%s\n", buf);
+      appendGrowData(gd, buf, strlen(buf));
+    }
+  }
+
+  free(buf);
+  fclose(f);
+  return 0;
+}
+
 /////////////////////////
 // growData with malloc()
 
 struct growData* newGrowData(size_t size) {
   struct growData* gd = (struct growData*)malloc(sizeof(struct growData));
+  memset(gd, 0, sizeof *gd);
 
   gd->data = (char*)malloc(size);
   memset(gd->data, 0, size);
+
   gd->size = size;
 
   return gd;

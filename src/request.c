@@ -40,9 +40,6 @@ int readRequest(struct context* ctx) {
   } while (n == BUF_SIZE);
   // printf("=======end=======\n");
 
-  printf("header:\n%s\n", ctx->rawHeader->data);
-  printf("body:\n%s\n", ctx->rawBody->data);
-
   free(buf);
   return 0;
 }
@@ -53,21 +50,21 @@ int parseHeader(struct context* ctx) {
   char *line, *key;
 
   // TODO:err handle
-  line = strsep(&tmpp, "\n");  // status line
+  line = strsep(&tmpp, "\r");  // request-line
 
   key = strsep(&line, " ");  // http method
   ctx->method = strdup(key);
 
-  key = strsep(&line, " ");  // request path
-  ctx->path = strdup(key);
+  key = strsep(&line, " ");  // request url
+  ctx->url = strdup(key);
 
   ctx->protocol = strdup(line);  // protocol
 
-  // printf("%s %s %s\n", ctx->method, ctx->path, ctx->protocol);
+  // printf("%s %s %s\n", ctx->method, ctx->url, ctx->protocol);
 
   // read field
-  for (line = strsep(&tmpp, "\n"); line != NULL;
-       line = strsep(&tmpp, "\n")) {  // line
+  for (line = strsep(&tmpp, "\r"); line != NULL;
+       line = strsep(&tmpp, "\r")) {  // line
 
     if (strlen(line) == 0) {  // null line
       continue;
@@ -77,7 +74,7 @@ int parseHeader(struct context* ctx) {
     if (line == NULL) {        // null val
       continue;
     }
-    setMap(ctx->header, key, trim(line));
+    setMap(ctx->header, trim(key), trim(line));
   }
 
   free(buf);

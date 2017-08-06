@@ -3,7 +3,7 @@
 /* find out the null line */
 char* endOfHeader(const char* srcStr);
 
-/* trim front and back space char */
+/* trim front and back space char & '\r' '\n' */
 char* trim(char* str);
 
 /////////////////////////
@@ -19,3 +19,5 @@ int appendGrowData(struct growData* gd, const char* data, size_t n);
 
 int cleanGrowData(struct growData* gd);
 ////////////////////////
+
+int readFile(const char* filePath, struct growData* gd);

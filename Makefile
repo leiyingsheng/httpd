@@ -3,13 +3,18 @@ vpath %.c src
 vpath %.h src
 vpath %_test.c src/test
 
+CFLAGS= -g -o0
+
 tests = utils_test map_test
-objects = utils.o request.o map.o context.o respone.o
+objects = utils.o request.o map.o context.o respone.o httpd.o 
 
 .PHONY: testAll clean
 
-httpd: httpd.o $(objects)
-	gcc -o httpd $^ -static
+httpd: $(objects)
+	gcc $(CFLAGS) $^ -o httpd 
+
+$(objects):%.o:%.c %.h
+	gcc $(CFLAGS) -c $< -o $@
 
 testAll: $(tests)
 	./$<
