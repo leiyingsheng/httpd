@@ -46,6 +46,10 @@ int readRequest(struct context* ctx) {
 
 /* read header field into context map */
 int parseHeader(struct context* ctx) {
+  if (strlen(ctx->rawHeader->data) == 0) {
+    return -1;
+  }
+
   char *buf = strdup(ctx->rawHeader->data), *tmpp = buf;
   char *line, *key;
 

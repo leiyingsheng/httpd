@@ -2,4 +2,4 @@
 
 int setupListener();
 
-int handleRequest(int clientFd);
+void* handleRequest(void* clientFd);

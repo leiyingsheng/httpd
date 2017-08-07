@@ -11,7 +11,7 @@ objects = utils.o request.o map.o context.o respone.o httpd.o
 .PHONY: testAll clean
 
 httpd: $(objects)
-	gcc $(CFLAGS) $^ -o httpd 
+	gcc $(CFLAGS) $^ -o httpd -pthread
 
 $(objects):%.o:%.c %.h
 	gcc $(CFLAGS) -c $< -o $@

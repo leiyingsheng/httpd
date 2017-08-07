@@ -13,6 +13,7 @@
 #include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "request.h"
 #include "respone.h"
@@ -27,12 +28,21 @@ int main(void) {
 
   struct sockaddr_in clientAddr;
   socklen_t clientAddrLen = sizeof(clientAddr);
+
+  pthread_t thread;
+  pthread_attr_t threadAttr;
+  pthread_attr_init(&threadAttr);
+  pthread_attr_setdetachstate(&threadAttr, PTHREAD_CREATE_DETACHED);
+
   while (1) {
     int clientFd =
         accept(listenFd, (struct sockaddr*)&clientAddr, &clientAddrLen);
 
     printf("hi %d\n", clientFd);
-    handleRequest(clientFd);
+    if (pthread_create(&thread, &threadAttr, handleRequest, &clientFd) != 0) {
+      printf("create thread fail\n");
+    }
+    // handleRequest(&clientFd);
   }
   close(listenFd);
 
@@ -54,8 +64,8 @@ int setupListener() {
   return listenFd;
 }
 
-int handleRequest(int clientFd) {
-  struct context* ctx = newContext(clientFd);
+void* handleRequest(void* clientFd) {
+  struct context* ctx = newContext(*(int*)clientFd);
 
   struct respone* resp = newRespone(STAT_OK);
 
@@ -68,7 +78,7 @@ int handleRequest(int clientFd) {
   parseHeader(ctx);
 
   printf("request url:%s\n", ctx->url);
-  printMap(ctx->header);
+  // printMap(ctx->header);
 
   resp->protocol = ctx->protocol;
   resp->message = "none";
@@ -83,6 +93,4 @@ int handleRequest(int clientFd) {
 
   close(ctx->clientFd);
   cleanContext(ctx);
-
-  return 0;
 }
