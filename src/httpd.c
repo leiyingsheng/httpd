@@ -44,6 +44,7 @@ int main(void) {
     }
     // handleRequest(&clientFd);
   }
+  pthread_attr_destroy(&threadAttr);
   close(listenFd);
 
   return 0;
@@ -81,16 +82,24 @@ void* handleRequest(void* clientFd) {
   // printMap(ctx->header);
 
   resp->protocol = ctx->protocol;
-  resp->message = "none";
+  resp->message = "OK";
   setMap(resp->header, "Content-type", "text/html");
+  setMap(resp->header, "mheader", "mval");
 
-  sprintf(filePath, "%s%s", STATIC_FILE_DIR, ctx->url);
-  if (readFile(filePath, resp->body) < 0) {
-    resp->statusCode = STAT_NOT_FOUND;
+  if (strcmp("/", ctx->url) == 0) {
+    printf("index\n");
+  } else {
+    sprintf(filePath, "%s%s", STATIC_FILE_DIR, ctx->url);
+    if (readFile(filePath, resp->body) < 0) {
+      resp->statusCode = STAT_NOT_FOUND;
+    }
   }
 
-  encodeRespone(ctx->clientFd, resp);
+  encodeRespone(resp);
+
+  sendRespone(resp, ctx->clientFd);
 
   close(ctx->clientFd);
+  cleanRespone(resp);
   cleanContext(ctx);
 }

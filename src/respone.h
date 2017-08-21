@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unistd.h>
+
 #include "map.h"
 #include "utils.h"
 
@@ -22,10 +24,16 @@ struct respone {
   struct map* header;
 
   struct growData* body;
+
+  struct iovec* encodedData;  // data ready to send
+  int vecCap;                 // capital of dataVec
+  int vecLen;                 // current dataVec length
 };
 
 struct respone* newRespone(int statusCode);
 
-int encodeRespone(int clientFd, struct respone* resp);
+int encodeRespone(struct respone* resp);
+int encodeHeader(struct respone* resp);
+int sendRespone(struct respone* resp, int clientFd);
 
 int cleanRespone(struct respone* resp);

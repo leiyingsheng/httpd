@@ -4,7 +4,6 @@
 
 #include "map.h"
 
-#define HASH_SIZE 50
 #define BUF_SIZE 128
 
 static inline unsigned int hash(char* str) {
@@ -110,33 +109,5 @@ int printMap(struct map* m) {
     }
   }
 
-  return 0;
-}
-
-int mapToHeader(struct growData* gd, struct map* m) {
-  if (NULL == m) {
-    return -1;
-  }
-
-  int i, lineLen;
-  struct entry* p;
-  char* buf = (char*)malloc(BUF_SIZE);
-
-  for (i = 0; i < HASH_SIZE; ++i) {
-    for (p = m->entryTab[i]; p != NULL; p = p->next) {
-      lineLen = strlen(p->key) + sizeof ": \r\n" + strlen(p->val);
-      if (lineLen > BUF_SIZE) {
-        printf("line too long\n");
-        free(buf);
-        return -1;
-      }
-      sprintf(buf, "%s: %s\r\n", p->key, p->val);
-      appendGrowData(gd, buf, lineLen);
-    }
-  }
-
-  appendGrowData(gd, "\r\n", sizeof "\r\n");
-
-  free(buf);
   return 0;
 }
