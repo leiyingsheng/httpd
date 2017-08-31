@@ -7,30 +7,21 @@
 /* list entry */
 struct entry {
   char* key;
-  char* val;
+  void* val;
   struct entry* next;
 };
 
-struct map {
+struct Map {
   struct entry** entryTab;
 };
 
-struct map* newMap();
+struct Map* newMap();
 
-int setMap(struct map* m, char* key, char* val);
+/* val must be malloced */
+int setMap(struct Map* m, char* key, void* val);
 
-char* getMap(struct map* m, char* key);
+void* getMap(struct Map* m, char* key);
 
-int cleanMap(struct map* m);
+int cleanMap(struct Map* m);
 
-int printMap(struct map* m);
-
-static inline unsigned int hash(char* str) {
-  unsigned int val;
-
-  for (val = 0; *str != '\0'; ++str) {
-    val = *str + 31 * val;
-  }
-
-  return val % HASH_SIZE;
-};
+int printMap(struct Map* m);

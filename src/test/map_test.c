@@ -1,5 +1,6 @@
 #include <CUnit/Basic.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "../map.h"
 
@@ -8,31 +9,31 @@
 */
 
 void basic_opera() {
-  struct map* mMap = newMap();
+  struct Map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
-  setMap(mMap, "test", "testval");
+  setMap(mMap, "test", strdup("testval"));
   CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test"), "testval");
 }
 
 void reset_map() {
-  struct map* mMap = newMap();
+  struct Map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
-  setMap(mMap, "test1", "testval1");
+  setMap(mMap, "test1", strdup("testval1"));
   // printf("%s\n", (char*)getMap(mMap, "test1"));
   CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test1"), "testval1");
 
-  setMap(mMap, "test1", "testval2");
+  setMap(mMap, "test1", strdup("testval2"));
   // printf("%s\n", (char*)getMap(mMap, "test1"));
   CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test1"), "testval2");
 }
 
 void test_cleanMap() {
-  struct map* mMap = newMap();
+  struct Map* mMap = newMap();
   CU_ASSERT(NULL != mMap);
 
-  setMap(mMap, "test", "testval");
+  setMap(mMap, "test", strdup("testval"));
   CU_ASSERT_STRING_EQUAL((char*)getMap(mMap, "test"), "testval");
 
   cleanMap(mMap);

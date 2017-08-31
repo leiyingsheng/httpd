@@ -12,8 +12,8 @@
 #define DATA_VECTOR_CAP 10
 #define CRLF "\r\n"
 
-struct respone* newRespone(int statusCode) {
-  struct respone* resp = (struct respone*)malloc(sizeof(struct respone));
+struct Respone* newRespone(int statusCode) {
+  struct Respone* resp = (struct Respone*)malloc(sizeof(struct Respone));
 
   resp->statusCode = statusCode;
   resp->header = newMap();
@@ -26,8 +26,8 @@ struct respone* newRespone(int statusCode) {
   return resp;
 }
 
-// dump all respone data into encodeedData vector
-int encodeRespone(struct respone* resp) {
+// dump all Respone data into encodeedData vector
+int encodeRespone(struct Respone* resp) {
   char statusLine[32];
 
   sprintf(statusLine, "%s %d %s" CRLF, resp->protocol, resp->statusCode,
@@ -49,13 +49,13 @@ int encodeRespone(struct respone* resp) {
   return 0;
 }
 
-// dump header into respone's encodedData vector
-int encodeHeader(struct respone* resp) {
+// dump header into Respone's encodedData vector
+int encodeHeader(struct Respone* resp) {
   char buf[BUFFER_SIZE];
 
   int i, pairLen;
   struct entry* p;
-  struct map* m = resp->header;
+  struct Map* m = resp->header;
 
   for (i = 0; i < HASH_SIZE; ++i) {
     for (p = m->entryTab[i]; p != NULL; p = p->next) {
@@ -71,7 +71,7 @@ int encodeHeader(struct respone* resp) {
         return -1;
       }
 
-      sprintf(buf, "%s: %s" CRLF, p->key, p->val);
+      sprintf(buf, "%s: %s" CRLF, p->key, (char*)p->val);
 
       resp->encodedData[resp->vecLen].iov_base = strdup(buf);
       resp->encodedData[resp->vecLen].iov_len = pairLen - 1;
@@ -87,17 +87,17 @@ int encodeHeader(struct respone* resp) {
   return 0;
 }
 
-int sendRespone(struct respone* resp, int clientFd) {
+int sendRespone(struct Respone* resp, int clientFd) {
   int n;
   n = writev(clientFd, resp->encodedData, resp->vecLen);
   if (n <= 0) {
-    perror("send respone");
+    perror("send Respone");
   }
 
   return n;
 }
 
-int cleanRespone(struct respone* resp) {
+int cleanRespone(struct Respone* resp) {
   cleanMap(resp->header);
   cleanGrowData(resp->body);
 

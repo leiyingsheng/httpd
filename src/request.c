@@ -10,7 +10,7 @@
 
 #define BUF_SIZE 1024
 
-int readRequest(struct context* ctx) {
+int readRequest(struct Context* ctx) {
   char* buf = (char*)malloc(BUF_SIZE);
   int n;
   char* eoh = NULL;
@@ -45,7 +45,7 @@ int readRequest(struct context* ctx) {
 }
 
 /* read header field into context map */
-int parseHeader(struct context* ctx) {
+int parseHeader(struct Context* ctx) {
   if (strlen(ctx->rawHeader->data) == 0) {
     return -1;
   }
@@ -78,7 +78,7 @@ int parseHeader(struct context* ctx) {
     if (line == NULL) {        // null val
       continue;
     }
-    setMap(ctx->header, trim(key), trim(line));
+    setMap(ctx->header, trim(key), strdup(trim(line)));
   }
 
   free(buf);

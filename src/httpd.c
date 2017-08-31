@@ -65,11 +65,26 @@ int setupListener() {
 }
 
 void* handleRequest(void* clientFd) {
-  struct context* ctx = newContext(*(int*)clientFd);
+  struct Context* ctx = newContext(*(int*)clientFd);
 
-  struct respone* resp = newRespone(STAT_OK);
+  struct Respone* resp;
 
-  
+  HandleFuncPtr handler = staticFile;
+  resp = handler(ctx);
+
+  encodeRespone(resp);
+
+  sendRespone(resp, ctx->clientFd);
+
+  close(ctx->clientFd);
+  cleanRespone(resp);
+  printf("bye %d\n", ctx->clientFd);
+  cleanContext(ctx);
+}
+
+struct Respone* staticFile(struct Context* ctx) {
+  struct Respone* resp = newRespone(STAT_OK);
+
   char filePath[32];
 
   readRequest(ctx);
@@ -83,8 +98,8 @@ void* handleRequest(void* clientFd) {
 
   resp->protocol = ctx->protocol;
   resp->message = "OK";
-  setMap(resp->header, "Content-type", "text/html");
-  setMap(resp->header, "mheader", "mval");
+  setMap(resp->header, "Content-type", strdup("text/html"));
+  setMap(resp->header, "mheader", strdup("mval"));
 
   if (!ctx->url) {
     printf("[warn] NULL url\n");
@@ -97,12 +112,5 @@ void* handleRequest(void* clientFd) {
     }
   }
 
-  encodeRespone(resp);
-
-  sendRespone(resp, ctx->clientFd);
-
-  close(ctx->clientFd);
-  cleanRespone(resp);
-  printf("bye %d\n", ctx->clientFd);
-  cleanContext(ctx);
+  return resp;
 }

@@ -17,11 +17,11 @@
 #define STAT_HTTP_VER_NOT_SUPPORTED 505
 //...
 
-struct respone {
+struct Respone {
   char* protocol;
   int statusCode;
   char* message;
-  struct map* header;
+  struct Map* header;
 
   struct growData* body;
 
@@ -30,11 +30,11 @@ struct respone {
   int vecLen;                 // current dataVec length
 };
 
-struct respone* newRespone(int statusCode);
+struct Respone* newRespone(int statusCode);
 
-int encodeRespone(struct respone* resp);
-int encodeHeader(struct respone* resp);
-int sendRespone(struct respone* resp, int clientFd);
+int encodeRespone(struct Respone* resp);
+int encodeHeader(struct Respone* resp);
+int sendRespone(struct Respone* resp, int clientFd);
 
-int cleanRespone(struct respone* resp);
+int cleanRespone(struct Respone* resp);
 
