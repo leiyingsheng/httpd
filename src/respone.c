@@ -104,10 +104,10 @@ int cleanRespone(struct respone* resp) {
   --resp->vecLen;
   while (resp->vecLen >= 0) {
     // to skip `CRLF`
-    if (strcmp(resp->encodedData[resp->vecLen].iov_base, CRLF) == 0)
-      continue;
+    if (strcmp(resp->encodedData[resp->vecLen].iov_base, CRLF) != 0) {
+      free(resp->encodedData[resp->vecLen].iov_base);
+    }
 
-    free(resp->encodedData[resp->vecLen].iov_base);
     --resp->vecLen;
   }
   free(resp->encodedData);

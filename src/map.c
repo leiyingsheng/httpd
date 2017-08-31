@@ -6,16 +6,6 @@
 
 #define BUF_SIZE 128
 
-static inline unsigned int hash(char* str) {
-  unsigned int val;
-
-  for (val = 0; *str != '\0'; ++str) {
-    val = *str + 31 * val;
-  }
-
-  return val % HASH_SIZE;
-};
-
 struct map* newMap() {
   struct map* p = (struct map*)malloc(sizeof(struct map));
   p->entryTab = (struct entry**)calloc(HASH_SIZE, sizeof(struct entry));

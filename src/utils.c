@@ -9,7 +9,7 @@
 
 /* find out the null line */
 char* endOfHeader(const char* srcStr) {
-  char *curp = srcStr, *prevp;
+  char *curp = (char*)srcStr, *prevp;
 
   prevp = curp;
   do {
@@ -20,6 +20,7 @@ char* endOfHeader(const char* srcStr) {
     }
 
     prevp = curp + 1;
+
   } while (curp != NULL);
 
   return NULL;

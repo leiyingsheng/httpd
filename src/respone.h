@@ -37,3 +37,4 @@ int encodeHeader(struct respone* resp);
 int sendRespone(struct respone* resp, int clientFd);
 
 int cleanRespone(struct respone* resp);
+

@@ -24,3 +24,13 @@ char* getMap(struct map* m, char* key);
 int cleanMap(struct map* m);
 
 int printMap(struct map* m);
+
+static inline unsigned int hash(char* str) {
+  unsigned int val;
+
+  for (val = 0; *str != '\0'; ++str) {
+    val = *str + 31 * val;
+  }
+
+  return val % HASH_SIZE;
+};

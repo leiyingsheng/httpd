@@ -15,13 +15,12 @@
 #include <unistd.h>
 #include <pthread.h>
 
-#include "request.h"
-#include "respone.h"
 #include "httpd.h"
 
 #define LISTEN_ADDR "127.0.0.1"
 #define LISTEN_PORT 1234
 #define STATIC_FILE_DIR "./static"
+#define CGI_DIR "./cgi-bin"
 
 int main(void) {
   int listenFd = setupListener();
@@ -70,6 +69,7 @@ void* handleRequest(void* clientFd) {
 
   struct respone* resp = newRespone(STAT_OK);
 
+  
   char filePath[32];
 
   readRequest(ctx);
@@ -86,7 +86,9 @@ void* handleRequest(void* clientFd) {
   setMap(resp->header, "Content-type", "text/html");
   setMap(resp->header, "mheader", "mval");
 
-  if (strcmp("/", ctx->url) == 0) {
+  if (!ctx->url) {
+    printf("[warn] NULL url\n");
+  } else if (strcmp("/", ctx->url) == 0) {
     printf("index\n");
   } else {
     sprintf(filePath, "%s%s", STATIC_FILE_DIR, ctx->url);
@@ -101,5 +103,6 @@ void* handleRequest(void* clientFd) {
 
   close(ctx->clientFd);
   cleanRespone(resp);
+  printf("bye %d\n", ctx->clientFd);
   cleanContext(ctx);
 }
