@@ -11,6 +11,6 @@
 #define MTD_DELETE "DELETE"
 // ...
 
-int readRequest(struct context* ctx);
+int readRequest(struct Context* ctx);
 
-int parseHeader(struct context* ctx);
+int parseHeader(struct Context* ctx);

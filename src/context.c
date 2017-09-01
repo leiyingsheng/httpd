@@ -5,8 +5,8 @@
 
 #define RAW_DATA_INIT_SIZE 512
 
-struct context* newContext(int clientFd) {
-  struct context* ctx = (struct context*)malloc(sizeof(struct context));
+struct Context* newContext(int clientFd) {
+  struct Context* ctx = (struct Context*)malloc(sizeof(struct Context));
   memset(ctx, 0, sizeof *ctx);
   ctx->clientFd = clientFd;
   ctx->header = newMap();
@@ -17,7 +17,7 @@ struct context* newContext(int clientFd) {
   return ctx;
 }
 
-int cleanContext(struct context* ctx) {
+int cleanContext(struct Context* ctx) {
   cleanMap(ctx->header);
 
   if (ctx->method != NULL)

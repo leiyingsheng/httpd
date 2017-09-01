@@ -2,3 +2,4 @@
 *.o
 httpd
 /static/
+/cgi-bin/

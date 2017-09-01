@@ -6,9 +6,19 @@
 
 #define BUF_SIZE 128
 
-struct map* newMap() {
-  struct map* p = (struct map*)malloc(sizeof(struct map));
-  p->entryTab = (struct entry**)calloc(HASH_SIZE, sizeof(struct entry));
+static inline unsigned int hash(char* str) {
+  unsigned int val;
+
+  for (val = 0; *str != '\0'; ++str) {
+    val = *str + 31 * val;
+  }
+
+  return val % HASH_SIZE;
+};
+
+struct Map* newMap() {
+  struct Map* p = (struct Map*)malloc(sizeof(struct Map));
+  p->entryTab = (struct entry**)calloc(HASH_SIZE, sizeof(struct entry*));
 
   if (NULL == p->entryTab) {
     return NULL;
@@ -17,7 +27,7 @@ struct map* newMap() {
   return p;
 }
 
-static struct entry* lookup(struct map* m, char* key) {
+static struct entry* lookup(struct Map* m, char* key) {
   struct entry* p;
 
   for (p = m->entryTab[hash(key)]; p != NULL; p = p->next) {
@@ -29,10 +39,12 @@ static struct entry* lookup(struct map* m, char* key) {
   return NULL;
 };
 
-int setMap(struct map* m, char* key, char* val) {
+/* val must be malloced */
+int setMap(struct Map* m, char* key, void* val) {
   struct entry* p;
   unsigned int hashval;
 
+  // entry not exist
   if (NULL == (p = lookup(m, key))) {
     p = (struct entry*)malloc(sizeof(struct entry));
     if (NULL == p) {
@@ -48,12 +60,12 @@ int setMap(struct map* m, char* key, char* val) {
     free(p->val);
   }
 
-  p->val = strdup(val);
+  p->val = val;
 
   return 0;
 };
 
-char* getMap(struct map* m, char* key) {
+void* getMap(struct Map* m, char* key) {
   struct entry* p = lookup(m, key);
 
   if (NULL == p) {
@@ -63,7 +75,7 @@ char* getMap(struct map* m, char* key) {
   return p->val;
 }
 
-int cleanMap(struct map* m) {
+int cleanMap(struct Map* m) {
   int i;
   struct entry *p, *tmp;
 
@@ -85,7 +97,7 @@ int cleanMap(struct map* m) {
   return 0;
 }
 
-int printMap(struct map* m) {
+int printMap(struct Map* m) {
   if (NULL == m) {
     return -1;
   }
@@ -95,7 +107,7 @@ int printMap(struct map* m) {
 
   for (i = 0; i < HASH_SIZE; ++i) {
     for (p = m->entryTab[i]; p != NULL; p = p->next) {
-      printf("%s:%s\n", p->key, p->val);
+      printf("%s:%s\n", p->key, (char*)p->val);
     }
   }
 

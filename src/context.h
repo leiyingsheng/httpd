@@ -3,17 +3,17 @@
 #include "map.h"
 #include "utils.h"
 
-struct context {
+struct Context {
   int clientFd;
   char* method;
   char* url;
   char* protocol;
-  struct map* header;
+  struct Map* header;
 
   struct growData* rawHeader;
   struct growData* rawBody;
 };
 
-struct context* newContext(int clientFd);
+struct Context* newContext(int clientFd);
 
-int cleanContext(struct context* ctx);
+int cleanContext(struct Context* ctx);
