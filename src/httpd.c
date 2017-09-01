@@ -14,13 +14,15 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "httpd.h"
 
 #define LISTEN_ADDR "127.0.0.1"
 #define LISTEN_PORT 1234
 #define STATIC_FILE_DIR "./static"
-#define CGI_DIR "./cgi-bin"
+#define CGI_DIR "./cgi-bin/"
 
 int main(void) {
   int listenFd = setupListener();
@@ -67,26 +69,6 @@ int setupListener() {
 void* handleRequest(void* clientFd) {
   struct Context* ctx = newContext(*(int*)clientFd);
 
-  struct Respone* resp;
-
-  HandleFuncPtr handler = staticFile;
-  resp = handler(ctx);
-
-  encodeRespone(resp);
-
-  sendRespone(resp, ctx->clientFd);
-
-  close(ctx->clientFd);
-  cleanRespone(resp);
-  printf("bye %d\n", ctx->clientFd);
-  cleanContext(ctx);
-}
-
-struct Respone* staticFile(struct Context* ctx) {
-  struct Respone* resp = newRespone(STAT_OK);
-
-  char filePath[32];
-
   readRequest(ctx);
   // printf("header:\n%s\n", ctx->rawHeader->data);
   // printf("body:\n%s\n", ctx->rawBody->data);
@@ -95,6 +77,73 @@ struct Respone* staticFile(struct Context* ctx) {
 
   printf("request url:%s\n", ctx->url);
   // printMap(ctx->header);
+
+  // struct Respone* resp;
+  // HandleFuncPtr handler = staticFile;
+  // resp = handler(ctx);
+  // encodeRespone(resp);
+  // sendRespone(resp, ctx->clientFd);
+  // cleanRespone(resp);
+
+  printf("cgi: %d \n", cgiCall(ctx));
+
+  close(ctx->clientFd);
+  printf("bye %d\n", ctx->clientFd);
+  cleanContext(ctx);
+}
+
+int cgiCall(struct Context* ctx) {
+  struct Respone* resp = newRespone(STAT_OK);
+
+  resp->protocol = ctx->protocol;
+  resp->message = "OK";
+  setMap(resp->header, "Content-type", strdup("text/html"));
+
+  encodeRespone(resp);
+  sendRespone(resp, ctx->clientFd);
+  cleanRespone(resp);
+
+  /* raw boay part */
+
+  pid_t pid;
+  int cmdStatus;
+
+  pid = fork();
+  if (pid < 0) {
+    printf("cgiCall: failed to fork\n");
+    return -1;
+  }
+
+  if (pid == 0) {  // children
+
+    if (dup2(ctx->clientFd, STDOUT_FILENO) < 0) {
+      perror("cgiCall: dup2");
+      exit(-1);
+    }
+
+    if (execl(CGI_DIR "echo", "echo", ctx->url, (char*)0) < 0) {
+      perror("execl");
+      exit(-1);
+    }
+
+    } else {  // parent
+
+    if (waitpid(pid, &cmdStatus, 0) < 0) {
+      perror("cgiCall: waitpid");
+      return -1;
+    }
+  }
+
+  if (WIFEXITED(cmdStatus))
+    return 0;
+  else
+    return -1;
+}
+
+struct Respone* staticFile(struct Context* ctx) {
+  struct Respone* resp = newRespone(STAT_OK);
+
+  char filePath[32];
 
   resp->protocol = ctx->protocol;
   resp->message = "OK";

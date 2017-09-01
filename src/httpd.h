@@ -13,4 +13,5 @@ int setupListener();
 void* handleRequest(void* clientFd);
 
 struct Respone* staticFile(struct Context* ctx);
-// HandleFunc staticFile;
+
+int cgiCall(struct Context* ctx);

@@ -38,13 +38,15 @@ int encodeRespone(struct Respone* resp) {
 
   encodeHeader(resp);
 
-  if (resp->vecLen >= resp->vecCap) {
-    printf("run out of encodedData vector\n");
-    return -1;
+  if (strlen(resp->body->data) > 0) {
+    if (resp->vecLen >= resp->vecCap) {
+      printf("run out of encodedData vector\n");
+      return -1;
+    }
+    resp->encodedData[resp->vecLen].iov_base = strdup(resp->body->data);
+    resp->encodedData[resp->vecLen].iov_len = strlen(resp->body->data);
+    ++resp->vecLen;
   }
-  resp->encodedData[resp->vecLen].iov_base = strdup(resp->body->data);
-  resp->encodedData[resp->vecLen].iov_len = strlen(resp->body->data);
-  ++resp->vecLen;
 
   return 0;
 }
